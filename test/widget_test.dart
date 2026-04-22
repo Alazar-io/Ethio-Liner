@@ -5,24 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ethio_liner/app.dart';
 
 void main() {
-  testWidgets('EthioLiner app renders home screen', (tester) async {
+  testWidgets('EthioLiner app renders splash screen', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: EthioLinerApp(),
       ),
     );
-    await tester.pumpAndSettle();
 
-    // Verify the app title is displayed
-    expect(find.text('EthioLiner'), findsWidgets);
-
-    // Verify the tagline is displayed
+    // Verify the app title on splash screen
+    expect(find.text('EthioLiner'), findsOneWidget);
     expect(find.text('Ethiopian Intercity Bus Booking'), findsOneWidget);
-
-    // Verify the search button exists
-    expect(find.text('Search Trips'), findsOneWidget);
-
-    // Verify the bus icon is displayed
-    expect(find.byIcon(Icons.directions_bus), findsOneWidget);
+    expect(find.byIcon(Icons.directions_bus_rounded), findsOneWidget);
   });
 }

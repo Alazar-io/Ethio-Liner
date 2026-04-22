@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../features/auth/presentation/onboarding_screen.dart';
+import '../features/auth/presentation/splash_screen.dart';
+import '../shared/widgets/app_shell.dart';
 
 /// Route path constants.
-///
-/// All route paths are defined here to avoid hardcoded strings
-/// throughout the application.
 class RoutePaths {
   RoutePaths._();
 
+  static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
   static const String home = '/';
   static const String search = '/search';
   static const String searchResults = '/search/results';
@@ -33,10 +36,12 @@ class RoutePaths {
   static const String operatorScanner = '/operator/scanner';
 }
 
-/// Route name constants for named navigation.
+/// Route name constants.
 class RouteNames {
   RouteNames._();
 
+  static const String splash = 'splash';
+  static const String onboarding = 'onboarding';
   static const String home = 'home';
   static const String search = 'search';
   static const String searchResults = 'searchResults';
@@ -54,18 +59,68 @@ class RouteNames {
   static const String operatorDashboard = 'operatorDashboard';
 }
 
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
+
 /// GoRouter configuration for the application.
-///
-/// Routes are defined here and will be expanded as features are implemented.
-/// Currently provides only the home route as a placeholder.
 final goRouter = GoRouter(
-  initialLocation: RoutePaths.home,
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: RoutePaths.splash,
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
-      path: RoutePaths.home,
-      name: RouteNames.home,
-      builder: (context, state) => const _PlaceholderHomeScreen(),
+      path: RoutePaths.splash,
+      name: RouteNames.splash,
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.onboarding,
+      name: RouteNames.onboarding,
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+
+    // App Shell navigation (Tabs)
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      builder: (context, state, child) => AppShell(child: child),
+      routes: [
+        GoRoute(
+          path: RoutePaths.home,
+          name: RouteNames.home,
+          builder: (context, state) => const _PlaceholderScreen(
+            title: 'Home',
+            icon: Icons.home,
+            subtitle: 'Find intercity trips across Ethiopia',
+          ),
+        ),
+        GoRoute(
+          path: RoutePaths.search,
+          name: RouteNames.search,
+          builder: (context, state) => const _PlaceholderScreen(
+            title: 'Search Trips',
+            icon: Icons.search,
+            subtitle: 'Select origin, destination and travel date',
+          ),
+        ),
+        GoRoute(
+          path: RoutePaths.myTrips,
+          name: RouteNames.myTrips,
+          builder: (context, state) => const _PlaceholderScreen(
+            title: 'My Trips',
+            icon: Icons.confirmation_number,
+            subtitle: 'View upcoming, completed & cancelled tickets',
+          ),
+        ),
+        GoRoute(
+          path: RoutePaths.profile,
+          name: RouteNames.profile,
+          builder: (context, state) => const _PlaceholderScreen(
+            title: 'Profile',
+            icon: Icons.person,
+            subtitle: 'Manage user account and preferences',
+          ),
+        ),
+      ],
     ),
   ],
   errorBuilder: (context, state) => _ErrorScreen(
@@ -73,17 +128,21 @@ final goRouter = GoRouter(
   ),
 );
 
-/// Riverpod provider for the GoRouter instance.
-///
-/// This allows other providers to access the router for
-/// programmatic navigation.
+/// Riverpod provider for GoRouter.
 final routerProvider = Provider<GoRouter>((ref) {
   return goRouter;
 });
 
-/// Placeholder home screen — will be replaced in Phase 3/4.
-class _PlaceholderHomeScreen extends StatelessWidget {
-  const _PlaceholderHomeScreen();
+class _PlaceholderScreen extends StatelessWidget {
+  const _PlaceholderScreen({
+    required this.title,
+    required this.icon,
+    required this.subtitle,
+  });
+
+  final String title;
+  final IconData icon;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -91,53 +150,31 @@ class _PlaceholderHomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EthioLiner'),
+        title: Text(title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.directions_bus,
-              size: 80,
+              icon,
+              size: 72,
               color: theme.colorScheme.primary,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
-              'EthioLiner',
-              style: theme.textTheme.headlineLarge?.copyWith(
-                color: theme.colorScheme.primary,
+              title,
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Ethiopian Intercity Bus Booking',
-              style: theme.textTheme.bodyLarge?.copyWith(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
-            ),
-            const SizedBox(height: 48),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
-              child: Text(
-                'Your journey across Ethiopia starts here.\n'
-                'Book intercity bus tickets with ease.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            const SizedBox(height: 48),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Will navigate to search in Phase 4
-                },
-                child: const Text('Search Trips'),
-              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -146,7 +183,6 @@ class _PlaceholderHomeScreen extends StatelessWidget {
   }
 }
 
-/// Error screen shown for unmatched routes.
 class _ErrorScreen extends StatelessWidget {
   const _ErrorScreen({required this.error});
 
