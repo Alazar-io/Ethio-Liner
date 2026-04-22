@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/onboarding_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/home/presentation/home_screen.dart';
+import '../features/search/presentation/search_results_screen.dart';
+import '../features/trips/presentation/trip_details_screen.dart';
 import '../shared/widgets/app_shell.dart';
 
 /// Route path constants.
@@ -78,6 +81,30 @@ final goRouter = GoRouter(
       name: RouteNames.onboarding,
       builder: (context, state) => const OnboardingScreen(),
     ),
+    GoRoute(
+      path: RoutePaths.searchResults,
+      name: RouteNames.searchResults,
+      builder: (context, state) {
+        final origin = state.uri.queryParameters['origin'];
+        final destination = state.uri.queryParameters['destination'];
+        final dateStr = state.uri.queryParameters['date'];
+        final passengersStr = state.uri.queryParameters['passengers'];
+        return SearchResultsScreen(
+          origin: origin,
+          destination: destination,
+          dateStr: dateStr,
+          passengersStr: passengersStr,
+        );
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.tripDetails,
+      name: RouteNames.tripDetails,
+      builder: (context, state) {
+        final tripId = state.pathParameters['tripId'] ?? '';
+        return TripDetailsScreen(tripId: tripId);
+      },
+    ),
 
     // App Shell navigation (Tabs)
     ShellRoute(
@@ -87,20 +114,12 @@ final goRouter = GoRouter(
         GoRoute(
           path: RoutePaths.home,
           name: RouteNames.home,
-          builder: (context, state) => const _PlaceholderScreen(
-            title: 'Home',
-            icon: Icons.home,
-            subtitle: 'Find intercity trips across Ethiopia',
-          ),
+          builder: (context, state) => const HomeScreen(),
         ),
         GoRoute(
           path: RoutePaths.search,
           name: RouteNames.search,
-          builder: (context, state) => const _PlaceholderScreen(
-            title: 'Search Trips',
-            icon: Icons.search,
-            subtitle: 'Select origin, destination and travel date',
-          ),
+          builder: (context, state) => const HomeScreen(),
         ),
         GoRoute(
           path: RoutePaths.myTrips,

@@ -39,7 +39,7 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    Widget child = isLoading
+    final child = isLoading
         ? SizedBox(
             height: 20,
             width: 20,
@@ -53,7 +53,7 @@ class AppButton extends StatelessWidget {
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
-            mainAlignment: MainAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
                 Icon(icon, size: 20),
@@ -63,11 +63,9 @@ class AppButton extends StatelessWidget {
             ],
           );
 
-    Widget button;
-
     switch (variant) {
       case AppButtonVariant.primary:
-        button = ElevatedButton(
+        return ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -81,10 +79,9 @@ class AppButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
 
       case AppButtonVariant.secondary:
-        button = ElevatedButton(
+        return ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
@@ -98,10 +95,9 @@ class AppButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
 
       case AppButtonVariant.outlined:
-        button = OutlinedButton(
+        return OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
@@ -114,10 +110,9 @@ class AppButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
 
       case AppButtonVariant.text:
-        button = TextButton(
+        return TextButton(
           onPressed: isLoading ? null : onPressed,
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primary,
@@ -126,9 +121,6 @@ class AppButton extends StatelessWidget {
           ),
           child: child,
         );
-        break;
     }
-
-    return button;
   }
 }

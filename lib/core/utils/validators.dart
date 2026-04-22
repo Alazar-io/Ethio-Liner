@@ -30,7 +30,7 @@ class Validators {
       return 'Phone number is required';
     }
 
-    String cleaned = value.replaceAll(RegExp(r'[\s\-()]'), '');
+    final cleaned = value.replaceAll(RegExp(r'[\s\-()]'), '');
 
     final internationalRegex = RegExp(r'^\+2519\d{8}$');
     final localRegex = RegExp(r'^09\d{8}$');

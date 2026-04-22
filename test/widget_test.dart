@@ -11,6 +11,7 @@ void main() {
         child: EthioLinerApp(),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 500));
 
     // Verify the app title on splash screen
     expect(find.text('EthioLiner'), findsOneWidget);
