@@ -4,8 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/onboarding_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/booking/presentation/screens/booking_summary_screen.dart';
+import '../features/booking/presentation/screens/passenger_details_screen.dart';
+import '../features/booking/presentation/screens/payment_simulation_screen.dart';
+import '../features/booking/presentation/screens/seat_selection_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/search/presentation/search_results_screen.dart';
+import '../features/tickets/presentation/screens/my_trips_screen.dart';
+import '../features/tickets/presentation/screens/ticket_screen.dart';
 import '../features/trips/presentation/trip_details_screen.dart';
 import '../shared/widgets/app_shell.dart';
 
@@ -105,6 +111,37 @@ final goRouter = GoRouter(
         return TripDetailsScreen(tripId: tripId);
       },
     ),
+    GoRoute(
+      path: RoutePaths.seatSelection,
+      name: RouteNames.seatSelection,
+      builder: (context, state) {
+        final tripId = state.pathParameters['tripId'] ?? '';
+        return SeatSelectionScreen(tripId: tripId);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.passengerDetails,
+      name: RouteNames.passengerDetails,
+      builder: (context, state) => const PassengerDetailsScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.bookingSummary,
+      name: RouteNames.bookingSummary,
+      builder: (context, state) => const BookingSummaryScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.payment,
+      name: RouteNames.payment,
+      builder: (context, state) => const PaymentSimulationScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.ticketDetails,
+      name: RouteNames.ticketDetails,
+      builder: (context, state) {
+        final ticketId = state.pathParameters['ticketId'] ?? '';
+        return TicketScreen(ticketId: ticketId);
+      },
+    ),
 
     // App Shell navigation (Tabs)
     ShellRoute(
@@ -124,11 +161,7 @@ final goRouter = GoRouter(
         GoRoute(
           path: RoutePaths.myTrips,
           name: RouteNames.myTrips,
-          builder: (context, state) => const _PlaceholderScreen(
-            title: 'My Trips',
-            icon: Icons.confirmation_number,
-            subtitle: 'View upcoming, completed & cancelled tickets',
-          ),
+          builder: (context, state) => const MyTripsScreen(),
         ),
         GoRoute(
           path: RoutePaths.profile,
