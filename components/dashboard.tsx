@@ -12,6 +12,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useApp } from '@/lib/app-context'
+import type { Page } from '@/components/sidebar-navigation'
 
 interface QuickActionProps {
   icon: React.ReactNode
@@ -51,7 +52,7 @@ function QuickAction({ icon, title, description, onClick, variant = 'default' }:
 }
 
 interface DashboardProps {
-  onNavigate: (tab: string) => void
+  onNavigate: (page: Page) => void
 }
 
 export function Dashboard({ onNavigate }: DashboardProps) {
@@ -83,7 +84,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           icon={<Camera className="h-6 w-6" />}
           title="Scan Prescription"
           description="Upload and analyze prescriptions"
-          onClick={() => onNavigate('prescription')}
+          onClick={() => onNavigate('prescriptions')}
         />
         <QuickAction
           icon={<AlertTriangle className="h-6 w-6" />}

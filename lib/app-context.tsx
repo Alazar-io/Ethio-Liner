@@ -5,6 +5,9 @@ import type { Role, Patient, ChatMessage, Note, Prescription } from './types'
 import { patients as initialPatients } from './mock-data'
 
 interface AppContextType {
+  isLoggedIn: boolean
+  login: (role: Role) => void
+  logout: () => void
   role: Role
   setRole: (role: Role) => void
   selectedPatientId: string
@@ -22,12 +25,24 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [role, setRole] = useState<Role>('patient')
   const [selectedPatientId, setSelectedPatientId] = useState(initialPatients[0].id)
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
   const selectedPatient = patients.find((p) => p.id === selectedPatientId)
+
+  const login = (selectedRole: Role) => {
+    setRole(selectedRole)
+    setIsLoggedIn(true)
+  }
+
+  const logout = () => {
+    setIsLoggedIn(false)
+    setRole('patient')
+    setChatMessages([])
+  }
 
   const addNote = (content: string) => {
     if (!selectedPatient || role !== 'doctor') return
@@ -89,6 +104,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
+        isLoggedIn,
+        login,
+        logout,
         role,
         setRole,
         selectedPatientId,
