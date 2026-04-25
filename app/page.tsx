@@ -2,20 +2,20 @@
 
 import { useState } from 'react'
 import { AppProvider, useApp } from '@/lib/app-context'
-import { LoginScreen } from '@/components/login-screen'
+import { AuthScreen } from '@/components/auth-screen'
 import { SidebarNavigation, type Page } from '@/components/sidebar-navigation'
 import { Dashboard } from '@/components/dashboard'
+import { HealthRecord } from '@/components/health-record'
 import { PrescriptionScanner } from '@/components/prescription-scanner'
 import { EmergencyPanel } from '@/components/emergency-panel'
-import { ChatInterface } from '@/components/chat-interface'
-import { HealthCard } from '@/components/health-card'
+import { AIHealthAgent } from '@/components/ai-health-agent'
 
 function MedbridgeApp() {
   const { isLoggedIn, login, logout } = useApp()
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
 
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={login} />
+    return <AuthScreen onLogin={login} />
   }
 
   const handleNavigate = (page: Page) => {
@@ -32,10 +32,12 @@ function MedbridgeApp() {
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto max-w-6xl px-6 py-8">
           {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
-          {currentPage === 'health-card' && <HealthCard />}
+          {currentPage === 'health-record' && <HealthRecord />}
           {currentPage === 'prescriptions' && <PrescriptionScanner />}
           {currentPage === 'emergency' && <EmergencyPanel />}
-          {currentPage === 'chat' && <ChatInterface />}
+          {currentPage === 'agent' && (
+            <AIHealthAgent onNavigateToEmergency={() => setCurrentPage('emergency')} />
+          )}
         </div>
       </main>
     </div>
