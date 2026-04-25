@@ -2,35 +2,25 @@
 
 import {
   LayoutDashboard,
-  CreditCard,
+  FileHeart,
   Pill,
   AlertTriangle,
-  MessageCircle,
+  Bot,
   LogOut,
   Activity,
   User,
-  Stethoscope,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { useApp } from '@/lib/app-context'
-import type { Role } from '@/lib/types'
 
-export type Page = 'dashboard' | 'health-card' | 'prescriptions' | 'emergency' | 'chat'
+export type Page = 'dashboard' | 'health-record' | 'prescriptions' | 'emergency' | 'agent'
 
 const navItems: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'health-card', label: 'Health Card', icon: CreditCard },
+  { id: 'health-record', label: 'Health Record', icon: FileHeart },
   { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
-  { id: 'emergency', label: 'Emergency', icon: AlertTriangle },
-  { id: 'chat', label: 'Chat', icon: MessageCircle },
+  { id: 'emergency', label: 'Emergency Help', icon: AlertTriangle },
+  { id: 'agent', label: 'AI Health Agent', icon: Bot },
 ]
 
 interface SidebarNavigationProps {
@@ -40,7 +30,7 @@ interface SidebarNavigationProps {
 }
 
 export function SidebarNavigation({ currentPage, onPageChange, onLogout }: SidebarNavigationProps) {
-  const { role, patients, selectedPatientId, setSelectedPatientId } = useApp()
+  const { user } = useApp()
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card">
@@ -54,27 +44,19 @@ export function SidebarNavigation({ currentPage, onPageChange, onLogout }: Sideb
         </div>
       </div>
 
-      <div className="border-b border-border p-4">
-        <RoleBadge role={role} />
-      </div>
-
-      {role === 'doctor' && (
+      {user && (
         <div className="border-b border-border p-4">
-          <label className="mb-2 block text-xs font-medium text-muted-foreground">
-            Select Patient
-          </label>
-          <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select patient" />
-            </SelectTrigger>
-            <SelectContent>
-              {patients.map((patient) => (
-                <SelectItem key={patient.id} value={patient.id}>
-                  {patient.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <User className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {user.age} years old
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -82,6 +64,7 @@ export function SidebarNavigation({ currentPage, onPageChange, onLogout }: Sideb
         {navItems.map((item) => {
           const isActive = currentPage === item.id
           const isEmergency = item.id === 'emergency'
+          const isAgent = item.id === 'agent'
 
           return (
             <button
@@ -91,10 +74,14 @@ export function SidebarNavigation({ currentPage, onPageChange, onLogout }: Sideb
                 isActive
                   ? isEmergency
                     ? 'bg-destructive/10 text-destructive'
-                    : 'bg-primary/10 text-primary'
+                    : isAgent
+                      ? 'bg-emerald-500/10 text-emerald-600'
+                      : 'bg-primary/10 text-primary'
                   : isEmergency
                     ? 'text-muted-foreground hover:bg-destructive/5 hover:text-destructive'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    : isAgent
+                      ? 'text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-600'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               <item.icon className="h-5 w-5" />
@@ -115,29 +102,5 @@ export function SidebarNavigation({ currentPage, onPageChange, onLogout }: Sideb
         </Button>
       </div>
     </aside>
-  )
-}
-
-function RoleBadge({ role }: { role: Role }) {
-  if (role === 'patient') {
-    return (
-      <Badge
-        variant="secondary"
-        className="w-full justify-center gap-2 bg-emerald-500/10 py-2 text-emerald-600"
-      >
-        <User className="h-4 w-4" />
-        Patient Account
-      </Badge>
-    )
-  }
-
-  return (
-    <Badge
-      variant="secondary"
-      className="w-full justify-center gap-2 bg-primary/10 py-2 text-primary"
-    >
-      <Stethoscope className="h-4 w-4" />
-      Doctor Account
-    </Badge>
   )
 }

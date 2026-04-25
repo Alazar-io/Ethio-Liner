@@ -42,7 +42,7 @@ const mockScannedResults: ScannedPrescription[] = [
 ]
 
 export function PrescriptionScanner() {
-  const { role, addPrescription } = useApp()
+  const { addPrescription } = useApp()
   const [isScanning, setIsScanning] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
   const [scannedResult, setScannedResult] = useState<ScannedPrescription | null>(null)
@@ -100,7 +100,7 @@ This explanation is simplified for general understanding. Always follow your doc
   }
 
   const handleSaveToRecord = () => {
-    if (!scannedResult || role !== 'doctor') return
+    if (!scannedResult) return
 
     addPrescription({
       drugName: scannedResult.drugName,
@@ -217,25 +217,23 @@ This explanation is simplified for general understanding. Always follow your doc
                 <Sparkles className="h-4 w-4" />
                 Explain Simply
               </Button>
-              {role === 'doctor' && (
-                <Button
-                  onClick={handleSaveToRecord}
-                  disabled={saved}
-                  className="gap-2"
-                >
-                  {saved ? (
-                    <>
-                      <CheckCircle2 className="h-4 w-4" />
-                      Saved to Record
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Save to Health Record
-                    </>
-                  )}
-                </Button>
-              )}
+              <Button
+                onClick={handleSaveToRecord}
+                disabled={saved}
+                className="gap-2"
+              >
+                {saved ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Saved to Record
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Save to Health Record
+                  </>
+                )}
+              </Button>
               <Button variant="ghost" onClick={handleUpload}>
                 Scan Another
               </Button>

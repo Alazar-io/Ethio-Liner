@@ -1,17 +1,11 @@
-export type Role = 'patient' | 'doctor'
-
-export interface Patient {
-  id: string
+export interface User {
   name: string
   age: number
   gender: 'Male' | 'Female' | 'Other'
-  condition: string
+  condition?: string
   medications: string[]
-  doctor: string
-  hospital: string
   medicalHistory: MedicalHistoryItem[]
   prescriptions: Prescription[]
-  notes: Note[]
   menstrualData?: MenstrualData
 }
 
@@ -30,13 +24,7 @@ export interface Prescription {
   instructions: string
   prescribedDate: string
   prescribedBy: string
-}
-
-export interface Note {
-  id: string
-  date: string
-  content: string
-  author: string
+  confidenceScore?: number
 }
 
 export interface MenstrualData {
@@ -49,6 +37,22 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+}
+
+export interface AgentThought {
+  id: string
+  type: 'analyzing' | 'tool' | 'thinking' | 'complete'
+  content: string
+  toolName?: string
+}
+
+export interface AgentResponse {
+  severity: 'Low' | 'Medium' | 'High'
+  reason: string
+  recommendation: string
+  emergencyAction?: string
+  thoughts: AgentThought[]
+  toolsUsed: string[]
 }
 
 export interface EmergencyCondition {
