@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/onboarding_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/booking/presentation/screens/booking_summary_screen.dart';
 import '../features/booking/presentation/screens/passenger_details_screen.dart';
 import '../features/booking/presentation/screens/payment_simulation_screen.dart';
 import '../features/booking/presentation/screens/seat_selection_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/profile/presentation/profile_screen.dart';
 import '../features/search/presentation/search_results_screen.dart';
 import '../features/tickets/presentation/screens/my_trips_screen.dart';
 import '../features/tickets/presentation/screens/ticket_screen.dart';
@@ -86,6 +89,16 @@ final goRouter = GoRouter(
       path: RoutePaths.onboarding,
       name: RouteNames.onboarding,
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.login,
+      name: RouteNames.login,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.register,
+      name: RouteNames.register,
+      builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
       path: RoutePaths.searchResults,
@@ -166,11 +179,7 @@ final goRouter = GoRouter(
         GoRoute(
           path: RoutePaths.profile,
           name: RouteNames.profile,
-          builder: (context, state) => const _PlaceholderScreen(
-            title: 'Profile',
-            icon: Icons.person,
-            subtitle: 'Manage user account and preferences',
-          ),
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     ),
@@ -184,56 +193,6 @@ final goRouter = GoRouter(
 final routerProvider = Provider<GoRouter>((ref) {
   return goRouter;
 });
-
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({
-    required this.title,
-    required this.icon,
-    required this.subtitle,
-  });
-
-  final String title;
-  final IconData icon;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 72,
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _ErrorScreen extends StatelessWidget {
   const _ErrorScreen({required this.error});
