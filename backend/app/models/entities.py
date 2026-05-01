@@ -58,10 +58,12 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     phone_number = Column(String(50), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.PASSENGER, nullable=False)
+    operator_id = Column(Integer, ForeignKey("operators.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     bookings = relationship("Booking", back_populates="user")
+    operator = relationship("Operator")
 
 
 class Operator(Base):
@@ -212,5 +214,6 @@ class Ticket(Base):
     status = Column(Enum(TicketStatus), default=TicketStatus.VALID, nullable=False)
     qr_code_data = Column(Text, nullable=False)
     issued_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    boarded_at = Column(DateTime, nullable=True)
 
     booking = relationship("Booking", back_populates="tickets")

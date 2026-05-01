@@ -87,6 +87,9 @@ class ApiClient {
     } else if (statusCode == 404) {
       final detail = jsonBody is Map ? jsonBody['detail']?.toString() : null;
       throw NotFoundException(message: detail ?? 'Resource not found.');
+    } else if (statusCode == 409) {
+      final detail = jsonBody is Map ? jsonBody['detail']?.toString() : null;
+      throw ConflictException(message: detail ?? 'This resource is no longer available. Please try again.');
     } else if (statusCode == 400 || statusCode == 422) {
       final detail = jsonBody is Map ? jsonBody['detail']?.toString() : null;
       throw ValidationException(message: detail ?? 'Invalid request data.');

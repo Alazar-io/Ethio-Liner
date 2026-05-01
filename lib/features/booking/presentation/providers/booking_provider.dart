@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +17,8 @@ class BookingDraftState {
     this.paymentMethod = PaymentMethod.telebirr,
     this.paymentStatus = PaymentStatus.pending,
     this.confirmedBooking,
+    this.remainingLockSeconds = 600,
+    this.isLockExpired = false,
   });
 
   final Trip? trip;
@@ -25,10 +28,20 @@ class BookingDraftState {
   final PaymentMethod paymentMethod;
   final PaymentStatus paymentStatus;
   final Booking? confirmedBooking;
+  final int remainingLockSeconds;
+  final bool isLockExpired;
 
   double get totalPriceEtb {
     if (trip == null) return 0.0;
     return trip!.priceEtb * selectedSeats.length;
+  }
+
+  String get formattedCountdown {
+    final mins = remainingLockSeconds ~/ 60;
+    final secs = remainingLockSeconds % 60;
+    final minsStr = mins.toString().padLeft(2, '0');
+    final secsStr = secs.toString().padLeft(2, '0');
+    return '$minsStr:$secsStr';
   }
 
   BookingDraftState copyWith({
@@ -39,6 +52,8 @@ class BookingDraftState {
     PaymentMethod? paymentMethod,
     PaymentStatus? paymentStatus,
     Booking? confirmedBooking,
+    int? remainingLockSeconds,
+    bool? isLockExpired,
   }) {
     return BookingDraftState(
       trip: trip ?? this.trip,
@@ -48,23 +63,29 @@ class BookingDraftState {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       confirmedBooking: confirmedBooking ?? this.confirmedBooking,
+      remainingLockSeconds: remainingLockSeconds ?? this.remainingLockSeconds,
+      isLockExpired: isLockExpired ?? this.isLockExpired,
     );
   }
 }
 
-/// State notifier managing the active booking flow draft.
+/// State notifier managing the active booking flow draft and seat reservation locks.
 class BookingDraftNotifier extends StateNotifier<BookingDraftState> {
   BookingDraftNotifier(this.ref) : super(const BookingDraftState());
 
   final Ref ref;
+  Timer? _countdownTimer;
 
   void initializeForTrip(Trip trip) {
+    stopLockCountdown();
     final seatLayout = generateBusSeatLayout(basePriceEtb: trip.priceEtb);
     state = BookingDraftState(
       trip: trip,
       seats: seatLayout,
       selectedSeats: const [],
       passengers: const [],
+      remainingLockSeconds: 600,
+      isLockExpired: false,
     );
   }
 
@@ -90,6 +111,50 @@ class BookingDraftNotifier extends StateNotifier<BookingDraftState> {
       seats: currentSeats,
       selectedSeats: currentSelected,
     );
+
+    if (currentSelected.isNotEmpty) {
+      startLockCountdown();
+    } else {
+      stopLockCountdown();
+      state = state.copyWith(remainingLockSeconds: 600);
+    }
+  }
+
+  void startLockCountdown() {
+    _countdownTimer?.cancel();
+    state = state.copyWith(remainingLockSeconds: 600, isLockExpired: false);
+
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.remainingLockSeconds > 1) {
+        state = state.copyWith(remainingLockSeconds: state.remainingLockSeconds - 1);
+      } else {
+        timer.cancel();
+        // Expired! Release locks
+        handleExpiration();
+      }
+    });
+  }
+
+  void stopLockCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+  }
+
+  void handleExpiration() {
+    stopLockCountdown();
+    final releasedSeats = state.seats.map((s) {
+      if (s.state == SeatState.selected) {
+        return s.copyWith(state: SeatState.available);
+      }
+      return s;
+    }).toList();
+
+    state = state.copyWith(
+      seats: releasedSeats,
+      selectedSeats: const [],
+      remainingLockSeconds: 0,
+      isLockExpired: true,
+    );
   }
 
   void setPassengers(List<Passenger> passengers) {
@@ -106,7 +171,7 @@ class BookingDraftNotifier extends StateNotifier<BookingDraftState> {
     // Simulate payment transaction network latency
     await Future.delayed(const Duration(milliseconds: 1800));
 
-    if (state.trip == null || state.selectedSeats.isEmpty) {
+    if (state.trip == null || state.selectedSeats.isEmpty || state.isLockExpired) {
       state = state.copyWith(paymentStatus: PaymentStatus.failed);
       return false;
     }
@@ -155,6 +220,8 @@ class BookingDraftNotifier extends StateNotifier<BookingDraftState> {
       tickets: tickets,
     );
 
+    stopLockCountdown();
+
     state = state.copyWith(
       paymentStatus: PaymentStatus.success,
       confirmedBooking: booking,
@@ -167,7 +234,14 @@ class BookingDraftNotifier extends StateNotifier<BookingDraftState> {
   }
 
   void reset() {
+    stopLockCountdown();
     state = const BookingDraftState();
+  }
+
+  @override
+  void dispose() {
+    stopLockCountdown();
+    super.dispose();
   }
 }
 

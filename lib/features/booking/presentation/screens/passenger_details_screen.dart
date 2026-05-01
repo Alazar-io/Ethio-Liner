@@ -11,6 +11,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_text_styles.dart';
 import '../../domain/models/booking_model.dart';
 import '../providers/booking_provider.dart';
+import '../widgets/seat_lock_countdown_banner.dart';
 
 class PassengerDetailsScreen extends ConsumerStatefulWidget {
   const PassengerDetailsScreen({super.key});
@@ -75,6 +76,30 @@ class _PassengerDetailsScreenState extends ConsumerState<PassengerDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<BookingDraftState>(bookingDraftProvider, (previous, next) {
+      if (next.isLockExpired && !(previous?.isLockExpired ?? false)) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Reservation Expired'),
+            content: const Text(
+              'Your temporary seat hold has expired. The seats have been released for other passengers. Please select your seats again.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.pop();
+                },
+                child: const Text('Select Seats Again'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
     final bookingState = ref.watch(bookingDraftProvider);
     final selectedSeats = bookingState.selectedSeats;
 
@@ -87,6 +112,7 @@ class _PassengerDetailsScreenState extends ConsumerState<PassengerDetailsScreen>
         key: _formKey,
         child: Column(
           children: [
+            const SeatLockCountdownBanner(),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.all(16),

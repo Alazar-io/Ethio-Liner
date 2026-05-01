@@ -9,6 +9,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_text_styles.dart';
 import '../../domain/models/seat_model.dart';
 import '../providers/booking_provider.dart';
+import '../widgets/seat_lock_countdown_banner.dart';
 
 class SeatSelectionScreen extends ConsumerStatefulWidget {
   const SeatSelectionScreen({
@@ -38,6 +39,17 @@ class _SeatSelectionScreenState extends ConsumerState<SeatSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<BookingDraftState>(bookingDraftProvider, (previous, next) {
+      if (next.isLockExpired && !(previous?.isLockExpired ?? false)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Temporary seat hold expired. Seats have been released.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    });
+
     final bookingState = ref.watch(bookingDraftProvider);
     final trip = bookingState.trip;
 
@@ -62,6 +74,8 @@ class _SeatSelectionScreenState extends ConsumerState<SeatSelectionScreen> {
       ),
       body: Column(
         children: [
+          const SeatLockCountdownBanner(),
+
           // Seat Legend
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

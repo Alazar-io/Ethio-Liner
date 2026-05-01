@@ -11,6 +11,9 @@ import '../features/booking/presentation/screens/passenger_details_screen.dart';
 import '../features/booking/presentation/screens/payment_simulation_screen.dart';
 import '../features/booking/presentation/screens/seat_selection_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/operator/presentation/screens/operator_dashboard_screen.dart';
+import '../features/operator/presentation/screens/passenger_manifest_screen.dart';
+import '../features/operator/presentation/screens/qr_boarding_scanner_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/search/presentation/search_results_screen.dart';
 import '../features/tickets/presentation/screens/my_trips_screen.dart';
@@ -41,6 +44,9 @@ class RoutePaths {
 
   // Operator routes
   static const String operatorDashboard = '/operator';
+  static const String operatorScan = '/operator/scan';
+  static const String operatorManifest = '/operator/manifest';
+  static const String operatorManifestDetails = '/operator/manifest/:tripId';
   static const String operatorBuses = '/operator/buses';
   static const String operatorRoutes = '/operator/routes';
   static const String operatorTrips = '/operator/trips';
@@ -69,6 +75,8 @@ class RouteNames {
   static const String login = 'login';
   static const String register = 'register';
   static const String operatorDashboard = 'operatorDashboard';
+  static const String operatorScan = 'operatorScan';
+  static const String operatorManifest = 'operatorManifest';
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -153,6 +161,25 @@ final goRouter = GoRouter(
       builder: (context, state) {
         final ticketId = state.pathParameters['ticketId'] ?? '';
         return TicketScreen(ticketId: ticketId);
+      },
+    ),
+    GoRoute(
+      path: RoutePaths.operatorDashboard,
+      name: RouteNames.operatorDashboard,
+      builder: (context, state) => const OperatorDashboardScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.operatorScan,
+      name: RouteNames.operatorScan,
+      builder: (context, state) => const QrBoardingScannerScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.operatorManifestDetails,
+      name: RouteNames.operatorManifest,
+      builder: (context, state) {
+        final tripIdStr = state.pathParameters['tripId'] ?? '1';
+        final tripId = int.tryParse(tripIdStr) ?? 1;
+        return PassengerManifestScreen(tripId: tripId);
       },
     ),
 

@@ -9,6 +9,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_text_styles.dart';
 import '../../domain/models/booking_model.dart';
 import '../providers/booking_provider.dart';
+import '../widgets/seat_lock_countdown_banner.dart';
 
 class PaymentSimulationScreen extends ConsumerStatefulWidget {
   const PaymentSimulationScreen({super.key});
@@ -54,6 +55,30 @@ class _PaymentSimulationScreenState extends ConsumerState<PaymentSimulationScree
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<BookingDraftState>(bookingDraftProvider, (previous, next) {
+      if (next.isLockExpired && !(previous?.isLockExpired ?? false)) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Reservation Expired'),
+            content: const Text(
+              'Your temporary seat hold has expired. The seats have been released for other passengers.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go(RoutePaths.home);
+                },
+                child: const Text('Return to Home'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
     final bookingState = ref.watch(bookingDraftProvider);
     final totalAmount = bookingState.totalPriceEtb + 25.0; // including platform fee
 
@@ -62,11 +87,15 @@ class _PaymentSimulationScreenState extends ConsumerState<PaymentSimulationScree
       appBar: AppBar(
         title: const Text('Simulated Payment'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Column(
+        children: [
+          const SeatLockCountdownBanner(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Simulation notice banner
             Container(
               padding: const EdgeInsets.all(14),
@@ -236,6 +265,9 @@ class _PaymentSimulationScreenState extends ConsumerState<PaymentSimulationScree
           ],
         ),
       ),
+    ),
+  ],
+),
     );
   }
 }

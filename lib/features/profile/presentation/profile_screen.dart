@@ -133,7 +133,37 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Operator Platform Entry
+            AppCard(
+              onTap: () => context.push(RoutePaths.operatorDashboard),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.business_center, color: AppColors.secondary),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Operator Platform', style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
+                        Text('Fleet dashboard, manifests & QR boarding', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textSecondary),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Settings & App Info
             AppCard(

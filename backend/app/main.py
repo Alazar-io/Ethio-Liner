@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, health, trips
+from app.api.routes import auth, health, operator, reservations, trips
 from app.core.config import settings
 from app.core.seed import seed_database
 
@@ -36,6 +36,8 @@ app.add_middleware(
 app.include_router(health.router, prefix=settings.API_V1_PREFIX)
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(trips.router, prefix=settings.API_V1_PREFIX)
+app.include_router(reservations.router, prefix=settings.API_V1_PREFIX)
+app.include_router(operator.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")
