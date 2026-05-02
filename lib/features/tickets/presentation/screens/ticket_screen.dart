@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/utils/ethiopian_calendar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/qr_code_widget.dart';
@@ -60,6 +62,8 @@ class TicketScreen extends ConsumerWidget {
 
     final ticket = foundTicket;
     final trip = ticket.trip;
+    final activeLocale = ref.watch(localeProvider);
+    final ethDate = EthiopianDate.fromGregorian(trip.departureTime);
     final depTimeStr = DateFormat('h:mm a, EEE MMM d').format(trip.departureTime);
 
     return Scaffold(
@@ -216,6 +220,20 @@ class TicketScreen extends ConsumerWidget {
                         Text('Departure Date & Time', style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary)),
                         const SizedBox(height: 2),
                         Text(depTimeStr, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month, size: 14, color: AppColors.primary),
+                            const SizedBox(width: 4),
+                            Text(
+                              ethDate.format(activeLocale.languageCode),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

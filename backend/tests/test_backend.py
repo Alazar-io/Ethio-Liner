@@ -7,8 +7,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from app.core.security import (
     create_access_token,
     decode_access_token,
+    generate_ticket_signature,
     hash_password,
     verify_password,
+    verify_ticket_signature,
 )
 from app.core.seed import seed_database
 from app.core.database import SessionLocal
@@ -36,6 +38,24 @@ def test_jwt_token_creation_and_decoding():
     assert payload["role"] == "PASSENGER"
 
 
+def test_ticket_tamper_proofing():
+    ticket_id = "TCK-78421-1"
+    trip_id = 1
+    seat = "3A"
+
+    sig = generate_ticket_signature(ticket_id, trip_id, seat)
+    assert isinstance(sig, str)
+    assert len(sig) > 0
+
+    # Valid verification
+    assert verify_ticket_signature(ticket_id, trip_id, seat, sig) is True
+
+    # Tampered seat or trip must fail
+    assert verify_ticket_signature(ticket_id, trip_id, "3B", sig) is False
+    assert verify_ticket_signature(ticket_id, 2, seat, sig) is False
+    assert verify_ticket_signature("TCK-FAKE", trip_id, seat, sig) is False
+
+
 def test_database_seeding_and_entities():
     seed_database()
     db = SessionLocal()
@@ -55,5 +75,6 @@ def test_database_seeding_and_entities():
 if __name__ == "__main__":
     test_password_hashing()
     test_jwt_token_creation_and_decoding()
+    test_ticket_tamper_proofing()
     test_database_seeding_and_entities()
     print("All backend tests passed successfully!")

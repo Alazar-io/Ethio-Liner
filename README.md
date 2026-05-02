@@ -12,6 +12,15 @@ The goal is not to build a collection of screens.
 
 ---
 
+## 📚 Technical Documentation Hub
+
+- [System Architecture (ARCHITECTURE.md)](./ARCHITECTURE.md) — End-to-end system context, Flutter feature-first clean architecture, FastAPI layered service architecture, concurrency seat locking sequence, and HMAC-SHA256 QR security.
+- [REST API Specification (API_SPEC.md)](./API_SPEC.md) — Comprehensive OpenAPI/REST documentation for all Auth, Trip, Reservation, and Operator endpoints with request/response schemas.
+- [Database Schema (DATABASE_SCHEMA.md)](./DATABASE_SCHEMA.md) — Complete Entity-Relationship (ER) diagram, PostgreSQL tables, enums, indexes, and constraints.
+- [Developer Setup & Operations Guide (DEVELOPMENT.md)](./DEVELOPMENT.md) — Complete setup instructions, test suite execution, backend startup, and release APK build steps.
+
+---
+
 # 1. Project Overview
 
 EthioLiner connects passengers with intercity bus operators and provides an end-to-end transportation workflow.

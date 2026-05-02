@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/locale_provider.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../routing/app_router.dart';
@@ -16,6 +17,14 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final user = authState.user;
+    final activeLocale = ref.watch(localeProvider);
+
+    String languageDisplayName = 'English';
+    if (activeLocale.languageCode == 'am') {
+      languageDisplayName = 'አማርኛ (Amharic)';
+    } else if (activeLocale.languageCode == 'om') {
+      languageDisplayName = 'Afaan Oromoo';
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -169,7 +178,12 @@ class ProfileScreen extends ConsumerWidget {
             AppCard(
               child: Column(
                 children: [
-                  _buildNavTile(Icons.language_outlined, 'Language (ቋንቋ)', 'English / አማርኛ'),
+                  _buildNavTile(
+                    Icons.language_outlined,
+                    'Language (ቋንቋ)',
+                    languageDisplayName,
+                    onTap: () => _showLanguageDialog(context, ref),
+                  ),
                   const Divider(),
                   _buildNavTile(Icons.info_outline, 'About EthioLiner', 'v1.0.0'),
                   const Divider(),
@@ -180,6 +194,71 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.read(localeProvider);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Text(
+                    'Select Language / ቋንቋ ይምረጡ',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Text('🇺🇸', style: TextStyle(fontSize: 24)),
+                  title: const Text('English'),
+                  trailing: currentLocale.languageCode == 'en'
+                      ? const Icon(Icons.check, color: AppColors.primary)
+                      : null,
+                  onTap: () {
+                    ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: const Text('🇪🇹', style: TextStyle(fontSize: 24)),
+                  title: const Text('አማርኛ (Amharic)'),
+                  trailing: currentLocale.languageCode == 'am'
+                      ? const Icon(Icons.check, color: AppColors.primary)
+                      : null,
+                  onTap: () {
+                    ref.read(localeProvider.notifier).setLocale(const Locale('am'));
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: const Text('🇪🇹', style: TextStyle(fontSize: 24)),
+                  title: const Text('Afaan Oromoo'),
+                  trailing: currentLocale.languageCode == 'om'
+                      ? const Icon(Icons.check, color: AppColors.primary)
+                      : null,
+                  onTap: () {
+                    ref.read(localeProvider.notifier).setLocale(const Locale('om'));
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -198,17 +277,24 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildNavTile(IconData icon, String title, String trailing) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.textSecondary, size: 20),
-          const SizedBox(width: 12),
-          Text(title, style: AppTextStyles.bodyMedium),
-          const Spacer(),
-          Text(trailing, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint)),
-        ],
+  Widget _buildNavTile(IconData icon, String title, String trailing, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.textSecondary, size: 20),
+            const SizedBox(width: 12),
+            Text(title, style: AppTextStyles.bodyMedium),
+            const Spacer(),
+            Text(trailing, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint)),
+            if (onTap != null) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right, size: 18, color: AppColors.textHint),
+            ],
+          ],
+        ),
       ),
     );
   }
